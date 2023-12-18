@@ -1,5 +1,202 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnival Stall Editor</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 5px;
+            background-color: #3f86ff;
+            color: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        select {
+            padding: 3px;
+            margin-bottom: 15px
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .field-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .field-input {
+            width: 80px;
+            text-align: center;
+            margin: 10 10px;
+        }
+
+        .btn {
+            padding: 6px;
+            margin-right: 10px;
+            margin-left: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #3f86ff;
+            color: white;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+    </style>
+</head>
 <body>
-<h1>TEST2</h1>
+
+    <header>
+        <h1>Stall Quantity Editor</h1>
+    </header>
+
+    <div class="container">
+        <label for="dropdown">Select Stall:</label>
+        <select id="dropdown" onchange = "loadContent()">
+            <!-- Add more options as needed -->
+        </select>
+        <div id="item-container"></div>
+            <!-- div class="field-container">
+                <span>Field 1:</span>
+                <button class="btn" onclick="decrement('field1')">-</button>
+                <input type="text" id="field1" class="field-input" value="0">
+                <button class="btn" onclick="increment('field1')">+</button>
+            </div>
+
+            <div class="field-container">
+                <span>Field 2:</span>
+                <button class="btn" onclick="decrement('field2')">-</button>
+                <input type="text" id="field2" class="field-input" value="0">
+                <button class="btn" onclick="increment('field2')">+</button>
+            </div> -->
+        </div>
+
+    </div>
+
+    <script>
+        data = {};
+        stallnames = []
+        stallnames_unformatted = []
+        currentStallData = {}
+        function getData(){
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = "";
+
+            var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+            };
+
+            fetch("https://getpantry.cloud/apiv1/pantry/31d400bc-49e5-4e1b-9b9c-f99f539fa53d/basket/carnival", requestOptions)
+            .then(response => response.text())
+            .then(result => {
+                data = JSON.parse(result)
+                console.log(data)
+                stallnames_unformatted = Object.keys(data)
+                stallnames = []
+                for (x in data) {
+                    stallnames.push(data[x]['displayName'])
+                }
+                pushStallNames();
+            })
+            .catch(error => console.log('error', error));
+            pushStallNames();
+            //console.log(data);
+        }
+        function setData(newData) {
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify(newData);
+            var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+            };
+
+            fetch("https://getpantry.cloud/apiv1/pantry/31d400bc-49e5-4e1b-9b9c-f99f539fa53d/basket/carnival", requestOptions)
+            .then(response => response.text())
+            .then(result => {
+                console.log(result)
+                console.log("Data sent successfully")
+            })
+            .catch(error => console.log('error', error));
+        }
+        function pushStallNames() {
+            optionfields = ''
+            for (name in stallnames) {
+                optionfields = optionfields + "<option value='" + stallnames[name] + "'>" + stallnames[name] +"</option>"
+            }
+            document.getElementById('dropdown').innerHTML = optionfields
+        }
+        getData();
+        function loadContent() {
+            let selectedName = stallnames_unformatted[document.getElementById("dropdown").selectedIndex].replaceAll(" ", "_").toLowerCase()
+            currentStallData = data[selectedName]
+            itemsHTMLdata = ''
+            for (let item in currentStallData) {  
+                if (item !== 'key' && item !== 'displayName') {
+                    //console.log("Name:" + item + "Quantity: " + currentStallData[item]['quantity']);
+                    itemsHTMLdata = itemsHTMLdata + createItem(item, currentStallData[item]['quantity']);
+                } 
+            }
+            itemsHTMLdata += "<button id = 'saveBtn' onclick = \"saveStoreItem("+"'"+selectedName+"'"+")\">Save</button>"
+            document.getElementById('item-container').innerHTML = itemsHTMLdata
+
+        }
+        function createItem(name, quantity) {
+            let nameString = "'"+ name + "'"
+            let itemHTML = "<div class='field-container'>" +
+            "<span>"+ name+":&nbsp</span>  " +
+            "<button class='btn' onclick=\"decrement("+nameString+")\">-</button>" +
+            "<input type='text' id='"+name.replaceAll(" ", "_")+"' class='field-input' value='"+quantity+"'>" +
+            "<button class='btn' onclick=\"increment("+nameString+")\">+</button>" +
+            "</div>"
+            return(itemHTML);
+        }
+        function saveStoreItem(stallName) {
+            updatedStallData = data[stallName];
+            for (let currentItem in updatedStallData) {
+                if (currentItem !== 'key' && currentItem !== 'displayName') {
+                    itemNewQuantity = document.getElementById(currentItem.replaceAll(" ", "_")).value;
+                    updatedStallData[currentItem.replace("_", " ")]['quantity'] = itemNewQuantity;
+                } 
+            }
+            data[stallName] = updatedStallData;
+            setData(data);
+            getData();
+        }
+        function increment(fieldId) {
+            var field = document.getElementById(fieldId.replaceAll(" ", "_"));
+            field.value = parseInt(field.value, 10) + 1;
+        }
+
+        function decrement(fieldId) {
+            var field = document.getElementById(fieldId.replaceAll(" ", "_"));
+            var value = parseInt(field.value, 10);
+            if (value > 0) {
+                field.value = value - 1;
+            }
+        }
+    </script>
+
 </body>
 </html>
