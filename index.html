@@ -64,7 +64,8 @@
         }
 
         .btn {
-            padding: 3px;
+            padding-left: 20px;
+            padding-right: 20px;
             margin-right: 12px;
             margin-left: 12px;
             text-align: center;
@@ -75,8 +76,11 @@
             border-radius: 25px;
             font-weight: 700;
             font-family: 'Inter', sans-serif;
-            font-size: 13pt;
-            width: 25px
+            font-size: 18pt;
+            width: 50px
+        }
+        .itemRow {
+            width: 170px;
         }
     </style>
 </head>
@@ -93,13 +97,14 @@
             <!-- Add more options as needed -->
         </select>
         <div id="item-container"></div>
-            <!-- div class="field-container">
-                <span>Field 1:</span>
+        <!--
+            <div class="field-container">
+                <span class="itemRow">Field 1:</span>
                 <button class="btn" onclick="decrement('field1')">-</button>
                 <input type="text" id="field1" class="field-input" value="0">
                 <button class="btn" onclick="increment('field1')">+</button>
             </div>
-
+            
             <div class="field-container">
                 <span>Field 2:</span>
                 <button class="btn" onclick="decrement('field2')">-</button>
@@ -203,7 +208,7 @@
         function createItem(name, quantity) {
             let nameString = "'"+ name + "'"
             let itemHTML = "<div class='field-container'>" +
-            "<span>"+ name+":&nbsp</span>  " +
+            "<span class='itemRow'>"+ name+":&nbsp</span>  " +
             "<button class='btn' onclick=\"decrement("+nameString+")\">-</button>" +
             "<input type='text' id='"+name.replaceAll(" ", "_")+"' class='field-input' value='"+quantity+"'>" +
             "<button class='btn' onclick=\"increment("+nameString+")\">+</button>" +
