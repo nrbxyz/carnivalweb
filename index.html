@@ -44,8 +44,6 @@
         p {
             color:rgb(148, 148, 148);
             font-size: 13px;
-            position: fixed;
-            bottom: 0;
         }
         .container {
             margin-top: 20px;
@@ -111,7 +109,7 @@
         </div>
 
     </div>
-    <p>Made by Nishadraj Bhava | @nrbxyz on GitHub</p>
+    <p style="position: fixed;bottom: 0;">Made by Nishadraj Bhava | @nrbxyz on GitHub</p>
 
     <script>
         data = {};
@@ -187,6 +185,7 @@
         }
         getData(true);
         function loadContent() {
+            console.log(stallnames_unformatted[document.getElementById("dropdown").selectedIndex-1])
             let selectedName = stallnames_unformatted[document.getElementById("dropdown").selectedIndex-1].replaceAll(" ", "_").toLowerCase()
             currentStallData = data[selectedName]
             itemsHTMLdata = ''
@@ -197,6 +196,7 @@
                 } 
             }
             itemsHTMLdata += "<button id = 'saveBtn' onclick = \"saveStoreItem("+"'"+selectedName+"'"+")\">Save</button>"
+            itemsHTMLdata += "<p>Please refresh once, before editing quantity and saving!</p>"
             document.getElementById('item-container').innerHTML = itemsHTMLdata
 
         }
@@ -216,7 +216,8 @@
             console.log(currIndex)
             updatedStallData = data[stallName];
             for (let currentItem in updatedStallData) {
-                if (currentItem !== 'key' && currentItem !== 'displayName') {
+                if (currentItem !== 'key' && currentItem !== 'displayName' && !isNaN(Number(currentStallData[currentItem]['quantity']))) {
+                    console.log(document.getElementById(currentItem.replaceAll(" ", "_")))
                     itemNewQuantity = document.getElementById(currentItem.replaceAll(" ", "_")).value;
                     updatedStallData[currentItem.replace("_", " ")]['quantity'] = itemNewQuantity;
                 } 
